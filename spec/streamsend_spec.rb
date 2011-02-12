@@ -40,5 +40,19 @@ describe "StreamSend::Subscriber" do
       subscribers.size.should == 1
       subscribers.first.should be_an_instance_of(StreamSend::Subscriber)
     end
+
+    describe "for single subscriber" do
+      before(:each) do
+        @subscriber = StreamSend::Subscriber.all.first
+      end
+
+      it "should return id" do
+        @subscriber.id.should == 2
+      end
+
+      it "should return email address" do
+        @subscriber.email_address.should == "scott.onix@gmail.com"
+      end
+    end
   end
 end
