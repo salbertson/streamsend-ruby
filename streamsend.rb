@@ -4,49 +4,49 @@ require 'net/https'
 require 'rexml/document'
 
 module StreamSend
-  HOST = "https://app.streamsend.com"
+  HOST = "app.streamsend.com"
 
-  def self.configure(login_id, key)
-    @login = login_id
-    @password = key
+  def self.configure(username, password)
+    @username = username
+    @password = password
   end
 
-  def self.login
-    @login
+  def self.username
+    @username
   end
 
   def self.password
     @password
   end
 
-  class Email
+  class Subscriber
     def initialize(data)
       @data = data
     end
 
     def self.all
-      url = URI.parse(HOST + "/emails.xml")
+      url = URI.parse("https://#{StreamSend::HOST}/audiences/1/people.xml")
 
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true if url.port == 443
 
       get = Net::HTTP::Get.new(url.path)
-      get.basic_auth StreamSend.login, StreamSend.password
+      get.basic_auth StreamSend.username, StreamSend.password
 
       response = http.start { |http| http.request(get) }
 
-      emails = []
+      people = []
       doc = REXML::Document.new(response.body)
       doc.elements.first.elements.each do |element|
         data = {}
         
-        %w[id name].each do |attribute|
+        %w[id email-address opt-status tracking-hash created-at].each do |attribute|
           data[attribute.intern] = element.elements[attribute].text
         end
-        emails << new(data)
+        people << new(data)
       end
 
-      return emails
+      return people
     end
   end
 end
