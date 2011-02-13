@@ -19,20 +19,40 @@ module StreamSend
     @password
   end
 
-  class Subscriber
-    attr_reader :data
+  def self.get(path)
+    http = Net::HTTP.new(StreamSend::HOST, 443)
+    http.use_ssl = true
+    request = Net::HTTP::Get.new(path)
+    request.basic_auth(StreamSend.username, StreamSend.password)
+    http.request(request).body
+  end
 
+  def self.xml_to_attribute_hashes(xml, fields)
+    collection = []
+    doc = REXML::Document.new(xml)
+    doc.elements.first.elements.each do |element|
+      data = {}
+      fields.each do |field_name|
+        field = element.elements[field_name]
+        data[field_name.gsub(/-/, "_")] = case field.attribute("type").to_s
+        when "integer"
+          field.text.to_i
+        else
+          field.text
+        end
+      end
+      collection << data
+    end
+
+    collection
+  end
+
+  class Resource
     def initialize(data)
       @data = data
     end
 
-    def id
-      @data["id"]
-    end
-
     def method_missing(method, *args, &block)
-      #if method.to_s =~ /\?$/
-        #send(method.to_s[0..-2])
       if @data.include?(method.to_s)
         @data[method.to_s]
       else
@@ -40,34 +60,20 @@ module StreamSend
       end
     end
 
-    def self.all
-      http = Net::HTTP.new(StreamSend::HOST, 443)
-      http.use_ssl = true
-      response = http.start do
-        get = Net::HTTP::Get.new("/audiences/1/people.xml")
-        get.basic_auth(StreamSend.username, StreamSend.password)
-        http.request(get)
+    def id
+      @data["id"]
+    end
+  end
+
+  class Subscriber < Resource
+    def self.all(audience_id = 1)
+      xml = StreamSend.get("/audiences/#{audience_id}/people.xml")
+      subscriber_data = StreamSend.xml_to_attribute_hashes(xml, %w[id email-address opt-status tracking-hash created-at])
+      subscribers = []
+      subscriber_data.each do |data|
+        subscribers << new(data)
       end
-
-      people = []
-      doc = REXML::Document.new(response.body)
-      doc.elements.first.elements.each do |element|
-        data = {}
-        
-        %w[id email-address opt-status tracking-hash created-at].each do |field_name|
-          field = element.elements[field_name]
-
-          data[field_name.gsub(/-/, "_")] = case field.attribute("type").to_s
-            when "integer"
-              field.text.to_i
-            else
-              field.text
-          end
-        end
-        people << new(data)
-      end
-
-      return people
+      subscribers
     end
   end
 end
