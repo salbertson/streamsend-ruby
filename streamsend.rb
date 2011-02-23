@@ -43,12 +43,16 @@ module StreamSend
     def id
       @data["id"]
     end
+
+    def self.xml_to_hash(xml)
+      Hash.from_xml(xml)
+    end
   end
 
   class Subscriber < Resource
     def self.all(audience_id = 1)
       xml = StreamSend.get("/audiences/#{audience_id}/people.xml")
-      Hash.from_xml(xml)["people"].collect { |data| new(data) }
+      xml_to_hash(xml)["people"].collect { |data| new(data) }
     end
   end
 end
