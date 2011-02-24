@@ -4,6 +4,8 @@ require 'net/https'
 require 'activesupport'
 
 module StreamSend
+  class Error < StandardError; end
+
   def self.configure(username, password, host = "app.streamsend.com")
     @username = username
     @password = password
@@ -23,6 +25,8 @@ module StreamSend
   end
 
   def self.get(path)
+    raise StreamSend::Error.new("You must call StreamSend.configure with a username and password.")  if !StreamSend.username || !StreamSend.password || !StreamSend.host
+
     http = Net::HTTP.new(StreamSend.host, 443)
     http.use_ssl = true
     request = Net::HTTP::Get.new(path)
@@ -31,6 +35,8 @@ module StreamSend
   end
 
   class Resource
+    attr_reader :data
+
     def initialize(data)
       @data = data
     end
@@ -53,7 +59,7 @@ module StreamSend
   end
 
   class Subscriber < Resource
-    def self.all(audience_id = 1)
+    def self.all(audience_id)
       xml = StreamSend.get("/audiences/#{audience_id}/people.xml")
       xml_to_hash(xml)["people"].collect { |data| new(data) }
     end

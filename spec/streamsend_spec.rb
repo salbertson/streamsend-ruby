@@ -11,9 +11,6 @@ describe "StreamSend" do
     @host = "test.host"
   end
 
-  describe ".configure" do
-  end
-
   describe ".get" do
     before(:each) do
       @path = "/valid/path.xml"
@@ -31,7 +28,13 @@ describe "StreamSend" do
     end
 
     describe "with no configuration" do
-      it "should raise exception"
+      before(:each) do
+        StreamSend.configure(nil, nil, nil)
+      end
+
+      it "should raise exception" do
+        lambda { StreamSend.get(@path) }.should raise_error(StreamSend::Error)
+      end
     end
   end
 
@@ -54,7 +57,7 @@ describe "StreamSend" do
         StreamSend::Resource.xml_to_hash(@xml).should be_instance_of Hash
       end
 
-      it "should return array of people hashes" do
+      it "should return array of hashes with person data" do
         person_hash = StreamSend::Resource.xml_to_hash(@xml)
         person_hash["people"].size.should == 1
         person_hash["people"].first["id"].should == 2
@@ -65,64 +68,43 @@ describe "StreamSend" do
   end
 
   describe "Subscriber" do
-    before(:each) do
-      StreamSend.configure(@username, @password, @host)
-
-      xml = <<-XML
-        <?xml version="1.0" encoding="UTF-8"?>
-        <people type="array">
-          <person>
-            <id type="integer">2</id>
-            <email-address>scott@gmail.com</email-address>
-            <created-at type="datetime">2009-09-18T01:27:05Z</created-at>
-          </person>
-        </people>
-      XML
-
-      stub_http_request(:get, "https://#{@username}:#{@password}@#{@host}/audiences/1/people.xml").to_return(:body => xml)
-    end
-
     describe ".all" do
-      describe "with the default audience ID" do
+      describe "with audience" do
         before(:each) do
-          @subscribers = StreamSend::Subscriber.all
+          xml = <<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <people type="array">
+              <person>
+                <id type="integer">2</id>
+                <email-address>scott@gmail.com</email-address>
+                <created-at type="datetime">2009-09-18T01:27:05Z</created-at>
+              </person>
+            </people>
+          XML
+
+          StreamSend.should_receive(:get).with("/audiences/1/people.xml").and_return xml
         end
 
-        it "should return array of subscriber objects" do
-          @subscribers.size.should == 1
-          @subscribers.first.should be_an_instance_of(StreamSend::Subscriber)
-        end
-      end
-
-      describe "with an explicit audience ID" do
-        before(:each) do
+        it "should return array of one subscriber object" do
           @subscribers = StreamSend::Subscriber.all(1)
-        end
-
-        it "should return array of subscriber objects" do
           @subscribers.size.should == 1
           @subscribers.first.should be_an_instance_of(StreamSend::Subscriber)
         end
-      end
-    end
 
-    describe "#id" do
-      before(:each) do
-        @subscriber = StreamSend::Subscriber.all.first
-      end
-
-      it "should return id" do
-        @subscriber.id.should == 2
-      end
-    end
-
-    describe "#email_address" do
-      before(:each) do
-        @subscriber = StreamSend::Subscriber.all.first
+        it "should create subscriber object with data" do
+          StreamSend::Subscriber.should_receive(:new).once.with({
+            "id" => 2,
+            "email_address" => "scott@gmail.com",
+            "created_at" => Time.parse("2009-09-18T01:27:05Z")
+          })
+          subscriber = StreamSend::Subscriber.all(1).first
+        end
       end
 
-      it "should return email address" do
-        @subscriber.email_address.should == "scott@gmail.com"
+      describe "with no audience" do
+        it "should raise an exception" do
+          lambda { StreamSend::Subscriber.all }.should raise_error
+        end
       end
     end
   end
