@@ -25,7 +25,7 @@ module StreamSend
   end
 
   def self.get(path)
-    raise StreamSend::Error.new("You must call StreamSend.configure with a username and password.")  if !StreamSend.username || !StreamSend.password || !StreamSend.host
+    raise StreamSend::Error.new("You must call StreamSend.configure with a username and password.") if !StreamSend.username || !StreamSend.password || !StreamSend.host
 
     http = Net::HTTP.new(StreamSend.host, 443)
     http.use_ssl = true
@@ -35,8 +35,6 @@ module StreamSend
   end
 
   class Resource
-    attr_reader :data
-
     def initialize(data)
       @data = data
     end

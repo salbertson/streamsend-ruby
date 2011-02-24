@@ -39,6 +39,22 @@ describe "StreamSend" do
   end
 
   describe "Resource" do
+    describe "with missing method" do
+      before(:each) do
+        @resource = StreamSend::Resource.new({"name" => "scott"})
+      end
+
+      it "should return value" do
+        @resource.name.should == "scott"
+      end
+    end
+
+    describe "#id" do
+      it "should return id" do
+        StreamSend::Resource.new({"id" => 99}).id.should == 99
+      end
+    end
+
     describe "#xml_to_hash" do
       before(:each) do
         @xml = <<-XML
@@ -68,6 +84,10 @@ describe "StreamSend" do
   end
 
   describe "Subscriber" do
+    it "should inherit from Resource" do
+      StreamSend::Subscriber.should < StreamSend::Resource
+    end
+
     describe ".all" do
       describe "with audience" do
         before(:each) do
