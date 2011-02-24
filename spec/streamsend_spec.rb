@@ -1,8 +1,40 @@
 require 'uri'
-require 'fakeweb'
+require 'webmock/rspec'
 require 'streamsend'
 
 describe "StreamSend" do
+  before(:each) do
+    stub_http_request(:any, //).to_return(:body => "Page not found.")
+
+    @username = "scott"
+    @password = "topsecret"
+    @host = "test.host"
+  end
+
+  describe ".configure" do
+  end
+
+  describe ".get" do
+    before(:each) do
+      @path = "/valid/path.xml"
+      stub_http_request(:get, "https://#{@username}:#{@password}@#{@host}#{@path}").to_return(:body => "response body")
+    end
+
+    describe "with valid configuration" do
+      before(:each) do
+        StreamSend.configure(@username, @password, @host)
+      end
+
+      it "should return response body" do
+        StreamSend.get(@path).should == "response body"
+      end
+    end
+
+    describe "with no configuration" do
+      it "should raise exception"
+    end
+  end
+
   describe "Resource" do
     describe "#xml_to_hash" do
       before(:each) do
@@ -34,10 +66,7 @@ describe "StreamSend" do
 
   describe "Subscriber" do
     before(:each) do
-      @username = "testloginid"
-      @password = "testkey"
-
-      StreamSend.configure(@username, @password)
+      StreamSend.configure(@username, @password, @host)
 
       xml = <<-XML
         <?xml version="1.0" encoding="UTF-8"?>
@@ -45,22 +74,12 @@ describe "StreamSend" do
           <person>
             <id type="integer">2</id>
             <email-address>scott@gmail.com</email-address>
-            <email-content-format>html</email-content-format>
-            <opt-status>active</opt-status>
-            <ip-address></ip-address>
-            <user-agent></user-agent>
-            <tracking-hash type="binary" encoding="base64">YlhlalFpWA==</tracking-hash>
-            <soft-bounce-count type="integer">0</soft-bounce-count>
             <created-at type="datetime">2009-09-18T01:27:05Z</created-at>
-            <updated-at type="datetime">2010-10-16T18:37:18Z</updated-at>
-            <subscribed-at type="datetime">2009-09-18T01:27:06Z</subscribed-at>
-            <unsubscribed-at type="datetime"></unsubscribed-at>
-            <audience-id type="integer">1</audience-id>
           </person>
         </people>
       XML
 
-      FakeWeb.register_uri(:get, "https://#{@username}:#{@password}@#{StreamSend::HOST}/audiences/1/people.xml", :body => xml)
+      stub_http_request(:get, "https://#{@username}:#{@password}@#{@host}/audiences/1/people.xml").to_return(:body => xml)
     end
 
     describe ".all" do

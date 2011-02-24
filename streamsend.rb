@@ -4,11 +4,10 @@ require 'net/https'
 require 'activesupport'
 
 module StreamSend
-  HOST = "app.streamsend.com"
-
-  def self.configure(username, password)
+  def self.configure(username, password, host = "app.streamsend.com")
     @username = username
     @password = password
+    @host     = host
   end
 
   def self.username
@@ -19,8 +18,12 @@ module StreamSend
     @password
   end
 
+  def self.host
+    @host
+  end
+
   def self.get(path)
-    http = Net::HTTP.new(StreamSend::HOST, 443)
+    http = Net::HTTP.new(StreamSend.host, 443)
     http.use_ssl = true
     request = Net::HTTP::Get.new(path)
     request.basic_auth(StreamSend.username, StreamSend.password)
