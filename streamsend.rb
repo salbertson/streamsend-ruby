@@ -42,6 +42,7 @@ module StreamSend
 
     def self.find(audience_id, email_address)
       response = StreamSend.get("/audiences/#{audience_id}/people.xml?email_address=#{email_address}")
+
       case response.code
       when 200
         if subscriber = response["people"].first
@@ -51,6 +52,21 @@ module StreamSend
         end
       else
         raise "Could not find the subscriber. Make sure your audience ID is correct. (#{response.code})"
+      end
+    end
+
+    def show(audience_id)
+      response = StreamSend.get("/audiences/#{audience_id}/people/#{id}.xml")
+
+      case response.code
+      when 200
+        if subscriber = response["person"]
+          self.class.new(subscriber)
+        else
+          nil
+        end
+      else
+        raise "Could not show the subscriber. (#{response.code})"
       end
     end
   end
