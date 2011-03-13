@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'httparty'
 
 module StreamSend
@@ -36,6 +37,20 @@ module StreamSend
         response["people"].collect { |data| new(data) }
       else
         raise "Could not find any subscribers. Make sure your audience ID is correct. (#{response.code})"
+      end
+    end
+
+    def self.find(audience_id, email_address)
+      response = StreamSend.get("/audiences/#{audience_id}/people.xml?email_address=#{email_address}")
+      case response.code
+      when 200
+        if subscriber = response["people"].first
+          new(subscriber)
+        else
+          nil
+        end
+      else
+        raise "Could not find the subscriber. Make sure your audience ID is correct. (#{response.code})"
       end
     end
   end
