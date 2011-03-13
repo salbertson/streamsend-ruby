@@ -29,7 +29,14 @@ module StreamSend
 
   class Subscriber < Resource
     def self.all(audience_id)
-      StreamSend.get("/audiences/#{audience_id}/people.xml")["people"].collect { |data| new(data) }
+      response = StreamSend.get("/audiences/#{audience_id}/people.xml")
+
+      case response.code
+      when 200
+        response["people"].collect { |data| new(data) }
+      else
+        raise "Could not find any subscribers. Make sure your audience ID is correct. (#{response.code})"
+      end
     end
   end
 end
