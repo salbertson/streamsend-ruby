@@ -149,7 +149,7 @@ describe "StreamSend" do
         end
 
         it "should return subscriber" do
-          subscriber = StreamSend::Subscriber.new({"id" => 2}).show(1)
+          subscriber = StreamSend::Subscriber.new({"id" => 2, "audience_id" => 1}).show
 
           subscriber.should be_instance_of(StreamSend::Subscriber)
           subscriber.id.should == 2
@@ -162,13 +162,13 @@ describe "StreamSend" do
 
       describe "with invalid subscriber instance" do
         it "should return nil" do
-          lambda { StreamSend::Subscriber.new({:id => 99}).show(1) }.should raise_error
+          lambda { StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).show }.should raise_error
         end
       end
 
       describe "with invalid audience" do
         it "should raise exception" do
-          lambda { StreamSend::Subscriber.new({:id => 2}).show(99) }.should raise_error
+          lambda { StreamSend::Subscriber.new({"id" => 2}).show }.should raise_error
         end
       end
     end

@@ -55,7 +55,7 @@ module StreamSend
       end
     end
 
-    def show(audience_id)
+    def show
       response = StreamSend.get("/audiences/#{audience_id}/people/#{id}.xml")
 
       case response.code
