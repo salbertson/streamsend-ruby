@@ -69,5 +69,9 @@ module StreamSend
         raise "Could not show the subscriber. (#{response.code})"
       end
     end
+
+    def activate
+      StreamSend.post("/audiences/#{audience_id}/people/#{id}/activate.xml")
+    end
   end
 end

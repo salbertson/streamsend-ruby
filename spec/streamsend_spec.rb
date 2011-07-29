@@ -172,5 +172,25 @@ describe "StreamSend" do
         end
       end
     end
+
+    describe "#activate" do
+      before(:each) do
+        stub_http_request(:post, "http://#{@username}:#{@password}@#{@host}/audiences/1/people/2/activate.xml").to_return(:body => nil)
+      end
+
+      describe "with valid subscriber" do
+        it "should be successful" do
+          response = StreamSend::Subscriber.new({"id" => 2, "audience_id" => 1}).activate
+          response.code.should == 200
+        end
+      end
+
+      describe "with invalid subscriber" do
+        it "should be unsuccessful" do
+          response = StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).activate
+          response.code.should_not == 200
+        end
+      end
+    end
   end
 end
