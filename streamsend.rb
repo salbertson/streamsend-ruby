@@ -71,7 +71,25 @@ module StreamSend
     end
 
     def activate
-      StreamSend.post("/audiences/#{audience_id}/people/#{id}/activate.xml")
+      response = StreamSend.post("/audiences/#{audience_id}/people/#{id}/activate.xml")
+
+      case response.code
+      when 200
+        true
+      else
+        raise "Could not activate the subscriber. (#{response.code})"
+      end
+    end
+
+    def subscribe
+      response = StreamSend.post("/audiences/#{audience_id}/people/#{id}/subscribe.xml")
+
+      case response.code
+      when 200
+        true
+      else
+        raise "Could not subscribe the subscriber. (#{response.code})"
+      end
     end
   end
 end

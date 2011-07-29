@@ -161,7 +161,7 @@ describe "StreamSend" do
       end
 
       describe "with invalid subscriber instance" do
-        it "should return nil" do
+        it "should raise exception" do
           lambda { StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).show }.should raise_error
         end
       end
@@ -181,14 +181,32 @@ describe "StreamSend" do
       describe "with valid subscriber" do
         it "should be successful" do
           response = StreamSend::Subscriber.new({"id" => 2, "audience_id" => 1}).activate
-          response.code.should == 200
+          response.should be_true
         end
       end
 
       describe "with invalid subscriber" do
-        it "should be unsuccessful" do
-          response = StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).activate
-          response.code.should_not == 200
+        it "should raise exception" do
+          lambda { StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).activate }.should raise_error
+        end
+      end
+    end
+
+    describe "#subscribe" do
+      before(:each) do
+        stub_http_request(:post, "http://#{@username}:#{@password}@#{@host}/audiences/1/people/2/subscribe.xml").to_return(:body => nil)
+      end
+
+      describe "with valid subscriber" do
+        it "should be successful" do
+          response = StreamSend::Subscriber.new({"id" => 2, "audience_id" => 1}).subscribe
+          response.should be_true
+        end
+      end
+
+      describe "with invalid subscriber" do
+        it "should raise exception" do
+          lambda { StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).subscribe }.should raise_error
         end
       end
     end
