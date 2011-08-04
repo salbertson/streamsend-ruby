@@ -192,21 +192,21 @@ describe "StreamSend" do
       end
     end
 
-    describe "#subscribe" do
+    describe "#unsubscribe" do
       before(:each) do
-        stub_http_request(:post, "http://#{@username}:#{@password}@#{@host}/audiences/1/people/2/subscribe.xml").to_return(:body => nil)
+        stub_http_request(:post, "http://#{@username}:#{@password}@#{@host}/audiences/1/people/2/unsubscribe.xml").to_return(:body => nil)
       end
 
       describe "with valid subscriber" do
         it "should be successful" do
-          response = StreamSend::Subscriber.new({"id" => 2, "audience_id" => 1}).subscribe
+          response = StreamSend::Subscriber.new({"id" => 2, "audience_id" => 1}).unsubscribe
           response.should be_true
         end
       end
 
       describe "with invalid subscriber" do
         it "should raise exception" do
-          lambda { StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).subscribe }.should raise_error
+          lambda { StreamSend::Subscriber.new({"id" => 99, "audience_id" => 1}).unsubscribe }.should raise_error
         end
       end
     end

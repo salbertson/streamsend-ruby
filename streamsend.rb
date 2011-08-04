@@ -81,8 +81,8 @@ module StreamSend
       end
     end
 
-    def subscribe
-      response = StreamSend.post("/audiences/#{audience_id}/people/#{id}/subscribe.xml")
+    def unsubscribe
+      response = StreamSend.post("/audiences/#{audience_id}/people/#{id}/unsubscribe.xml")
 
       case response.code
       when 200
