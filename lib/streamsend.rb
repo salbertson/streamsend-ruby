@@ -29,7 +29,11 @@ module StreamSend
   end
 
   class Subscriber < Resource
-    def self.all(audience_id)
+    def self.audience_id
+      @audience_id ||= StreamSend.get("/audiences.xml").parsed_response["audiences"].first["id"]
+    end
+
+    def self.all
       response = StreamSend.get("/audiences/#{audience_id}/people.xml")
 
       case response.code
@@ -40,7 +44,7 @@ module StreamSend
       end
     end
 
-    def self.find(audience_id, email_address)
+    def self.find(email_address)
       response = StreamSend.get("/audiences/#{audience_id}/people.xml?email_address=#{email_address}")
 
       case response.code

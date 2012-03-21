@@ -29,7 +29,23 @@ describe "StreamSend" do
       @password = "topsecret"
       @host = "test.host"
 
+      xml = <<-XML
+        <?xml version="1.0" encoding="UTF-8"?>
+        <audiences type="array">
+          <audience>
+            <id type="integer">2</id>
+          </audience>
+        </audiences>
+      XML
+      stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences.xml").to_return(:body => xml)
+
       StreamSend.configure(@username, @password, @host)
+    end
+
+    describe ".audience_id" do
+      it "should return the id of the first audience" do
+        StreamSend::Subscriber.audience_id.should == 2
+      end
     end
 
     describe ".all" do
@@ -46,11 +62,11 @@ describe "StreamSend" do
             </people>
           XML
 
-          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/1/people.xml").to_return(:body => xml)
+          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/2/people.xml").to_return(:body => xml)
         end
 
         it "should return array of one subscriber object" do
-          subscribers = StreamSend::Subscriber.all(1)
+          subscribers = StreamSend::Subscriber.all
           subscribers.size.should == 1
 
           subscribers.first.should be_instance_of(StreamSend::Subscriber)
@@ -67,17 +83,26 @@ describe "StreamSend" do
             <people type="array"/>
           XML
 
-          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/1/people.xml").to_return(:body => xml)
+          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/2/people.xml").to_return(:body => xml)
         end
 
         it "should return an empty array" do
-          StreamSend::Subscriber.all(1).should == []
+          StreamSend::Subscriber.all.should == []
         end
       end
 
       describe "with invalid audience" do
+        before(:each) do
+          xml = <<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <people type="array"/>
+          XML
+
+          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/99/people.xml").to_return(:body => xml)
+        end
+
         it "should raise an exception" do
-          lambda { StreamSend::Subscriber.all(99) }.should raise_error
+          lambda { StreamSend::Subscriber.all }.should raise_error
         end
       end
     end
@@ -96,11 +121,11 @@ describe "StreamSend" do
             </people>
           XML
 
-          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/1/people.xml?email_address=scott@gmail.com").to_return(:body => xml)
+          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/2/people.xml?email_address=scott@gmail.com").to_return(:body => xml)
         end
 
         it "should return subscriber" do
-          subscriber = StreamSend::Subscriber.find(1, "scott@gmail.com")
+          subscriber = StreamSend::Subscriber.find("scott@gmail.com")
 
           subscriber.should be_instance_of(StreamSend::Subscriber)
           subscriber.id.should == 2
@@ -116,17 +141,26 @@ describe "StreamSend" do
             <people type="array"\>
           XML
 
-          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/1/people.xml?email_address=bad.email@gmail.com").to_return(:body => xml)
+          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/2/people.xml?email_address=bad.email@gmail.com").to_return(:body => xml)
         end
 
         it "should return nil" do
-          StreamSend::Subscriber.find(1, "bad.email@gmail.com").should == nil
+          StreamSend::Subscriber.find("bad.email@gmail.com").should == nil
         end
       end
 
       describe "with invalid audience" do
+        before(:each) do
+          xml = <<-XML
+            <?xml version="1.0" encoding="UTF-8"?>
+            <people type="array"\>
+          XML
+
+          stub_http_request(:get, "http://#{@username}:#{@password}@#{@host}/audiences/99/people.xml?email_address=bad.email@gmail.com").to_return(:body => xml)
+        end
+
         it "should raise an exception" do
-          lambda { StreamSend::Subscriber.find(99, "scott@gmail.com") }.should raise_error
+          lambda { StreamSend::Subscriber.find("scott@gmail.com") }.should raise_error
         end
       end
     end
