@@ -1,8 +1,9 @@
 require 'rubygems'
 require 'httparty'
 
-require File.join(File.dirname(__FILE__), "streamsend/resource")
-require File.join(File.dirname(__FILE__), "streamsend/subscriber")
+require "streamsend/resource"
+require "streamsend/subscriber"
+require "streamsend/version"
 
 module StreamSend
   include HTTParty
