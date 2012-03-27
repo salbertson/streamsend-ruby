@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Ruby wrapper for the StreamSend API.}
   gem.description   = %q{Ruby wrapper for the StreamSend API.}
   gem.homepage      = %q{http://github.com/salbertson/streamsend-ruby}
-  gem.date          = %q{2012-03-21}
+  gem.date          = %q{2012-03-27}
 
   gem.add_dependency "httparty", "0.7.4"
   gem.add_development_dependency "rspec", "~> 2.5"
