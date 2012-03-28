@@ -1,9 +1,5 @@
 module StreamSend
   class Subscriber < Resource
-    def self.audience_id
-      @audience_id ||= StreamSend.get("/audiences.xml").parsed_response["audiences"].first["id"]
-    end
-
     def self.all
       response = StreamSend.get("/audiences/#{audience_id}/people.xml")
 

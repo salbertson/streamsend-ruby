@@ -15,5 +15,9 @@ module StreamSend
     def id
       @data["id"]
     end
+
+    def self.audience_id
+      @audience_id ||= StreamSend.get("/audiences.xml").parsed_response["audiences"].first["id"]
+    end
   end
 end
