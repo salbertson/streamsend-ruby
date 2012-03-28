@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.date          = %q{2012-03-27}
 
   gem.add_dependency "httparty", "0.7.4"
-  gem.add_development_dependency "rspec", "~> 2.5"
+  gem.add_development_dependency "rspec", "~> 2.9"
   gem.add_development_dependency "webmock", "~> 1.6"
 
   gem.files         = `git ls-files`.split($\)

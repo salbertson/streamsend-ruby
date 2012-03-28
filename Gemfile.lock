@@ -28,6 +28,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  rspec (~> 2.5)
+  rspec (~> 2.9)
   streamsend!
   webmock (~> 1.6)
