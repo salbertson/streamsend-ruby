@@ -3,6 +3,7 @@ require 'httparty'
 
 require "streamsend/resource"
 require "streamsend/subscriber"
+require "streamsend/list"
 require "streamsend/version"
 
 module StreamSend

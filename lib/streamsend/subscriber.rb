@@ -30,6 +30,21 @@ module StreamSend
       end
     end
 
+    def self.create(person_hash)
+      response = StreamSend.post("/audiences/#{audience_id}/people.xml", :query => {:person => person_hash})
+
+      case response.code
+      when 201
+        response.headers["location"] =~ /audiences\/\d+\/people\/(\d+)$/
+        subscriber_id = $1
+        unless subscriber_id.nil?
+          subscriber_id.to_i
+        end
+      else
+        raise "Could not create the subscriber. (#{response.code})"
+      end
+    end
+
     def show
       response = StreamSend.get("/audiences/#{audience_id}/people/#{id}.xml")
 

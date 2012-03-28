@@ -145,6 +145,47 @@ module StreamSend
       end
     end
 
+    describe ".create" do
+      describe "with valid subscriber parameters" do
+        describe "with no existing subscribers using the given email address" do
+          before(:each) do
+            stub_http_request(:post, /audiences\/2\/people.xml/).with(:person => {"email_address" => "foo@bar.com", "first_name" => "JoeBob"}).to_return(:body => "", :headers => {"location" => "http://test.host/audiences/2/people/1"}, :status => 201)
+          end
+
+          it "should return the new subscriber's id" do
+            subscriber_id = StreamSend::Subscriber.create({"email_address" => "foo@bar.com", "first_name" => "JoeBob"})
+
+            subscriber_id.should_not be_nil
+            subscriber_id.should == 1
+          end
+        end
+
+        describe "with an existing subscriber using the given email address" do
+          before(:each) do
+            stub_http_request(:post, /audiences\/2\/people.xml/).with(:person => {"email_address" => "foo@bar.com", "first_name" => "JoeBob"}).to_return(:body => "<error>Email address has already been taken<error>")
+          end
+
+          it "should raise an exception" do
+            lambda {
+              subscriber_id = StreamSend::Subscriber.create({"email_address" => "foo@bar.com", "first_name" => "JoeBob"})
+            }.should raise_error
+          end
+        end
+      end
+
+      describe "with invalid subscriber parameters" do
+        before(:each) do
+          stub_http_request(:post, /audiences\/2\/people.xml/).with({"email_address" => "foo.com", "first_name" => "JoeBob"}).to_return(:body => "<error>Email address does not appear to be valid</error>")
+        end
+
+        it "should raise an exception" do
+          lambda {
+            subscriber_id = StreamSend::Subscriber.create({"email_address" => "foo@bar.com", "first_name" => "JoeBob"})
+          }.should raise_error
+        end
+      end
+    end
+
     describe "#show" do
       describe "with valid subscriber instance" do
         before(:each) do
