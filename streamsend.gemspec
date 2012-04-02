@@ -7,7 +7,7 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Ruby wrapper for the StreamSend API.}
   gem.description   = %q{Ruby wrapper for the StreamSend API.}
   gem.homepage      = %q{http://github.com/salbertson/streamsend-ruby}
-  gem.date          = %q{2012-03-27}
+  gem.date          = %q{2012-04-02}
 
   gem.add_dependency "httparty", "0.7.4"
   gem.add_development_dependency "rspec", "~> 2.9"
@@ -18,5 +18,5 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "streamsend"
   gem.require_paths = ["lib"]
-  gem.version       = "0.1.1"
+  gem.version       = "0.1.2"
 end
