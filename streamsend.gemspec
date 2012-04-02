@@ -1,5 +1,4 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/streamsend/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.authors       = ["Scott Albertson"]
